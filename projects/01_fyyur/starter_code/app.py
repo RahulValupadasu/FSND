@@ -8,10 +8,14 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import *
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+from flask_migrate import Migrate
+# import sqlalchemy.dialects.postgresql.psycopg2
+from psycopg2 import *
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -26,6 +30,13 @@ db = SQLAlchemy(app)
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
+
+show = db.Table('show',
+                db.Column('artist_id',db.Integer,db.ForeignKey('Artist.id')),
+                db.Column('venue_id',db.Integer,db.ForeignKey('Venue.id'))
+                )
+
+
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
@@ -52,6 +63,7 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    venue_perform=db.relationship('Venue',secondary=show,backref=db.backref('artist_perform',lazy='dynamic'))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
